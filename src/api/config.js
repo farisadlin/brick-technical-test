@@ -21,7 +21,8 @@ export const fetchApiData = async (endpoint, dispatch) => {
     if (!response.ok) {
         const errorMessage = await response.json()
         console.error(response)
-        alert(errorMessage.message) // didn't have enough time to move this into ErrorPage
+
+        alert(`Error Status ${response.status}: ${errorMessage.message}`) // didn't have enough time to move this into ErrorPage
         await dispatch(fetchSearchGithubDataFailed({errorMessage: errorMessage, errorStatus: response.status, isError: !response.ok}))
         return response.message
     } else {
