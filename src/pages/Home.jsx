@@ -10,10 +10,10 @@ import { DROPDOWN_OPTIONS, MEDIA_QUERIES_DEVICE, PAGE_LIMIT } from "@/constants"
 import capitalizeText from "@/utils/capitalizeText";
 import SkeletonCard from "@/components/common/SkeletonCard";
 import useDebounce from "@/hooks/useDebounce";
-import ProfileCard from "@/components/common/ProfileCard";
 import NoDataFoundPage from '@/components/common/NoDataFoundPage';
-import RepositoryCard from '@/components/common/RepositoryCard';
 import MainLayout from '@/components/layout/MainLayout';
+import ProfileCard from './components/ProfileCard';
+import RepositoryCard from './components/RepositoryCard';
 
 // FILTERS
 const StyledFilterContainer = styled.div`
@@ -81,7 +81,7 @@ function renderSkeletonComponent() {
     return divs;
 }
 
-export default function Home() {
+const Home = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useDispatch();
@@ -206,7 +206,6 @@ export default function Home() {
                         ))}
                     </StyledDropdownInput>
                 </StyledDropdownWrapper>
-
             </StyledFilterContainer>
 
             {/* Cards */}
@@ -227,3 +226,5 @@ export default function Home() {
         </MainLayout>
     )
 }
+
+export default Home;

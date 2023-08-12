@@ -12,7 +12,7 @@ const StyledMainLayout = styled.div`
     }
 `;
 
-export default function MainLayout({ children }) {
+const MainLayout = ({ children }) => {
     return (
         <StyledMainLayout>
             <Header />
@@ -24,3 +24,5 @@ export default function MainLayout({ children }) {
 MainLayout.propTypes = {
     children: PropTypes.node.isRequired
 };
+
+export default MainLayout;

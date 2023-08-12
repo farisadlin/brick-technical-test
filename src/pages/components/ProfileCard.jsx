@@ -40,7 +40,7 @@ const StyledStats = styled.div`
   margin-top: 5px;
 `;
 
-export default function ProfileCard({ item }) {
+const ProfileCard = ({ item }) => {
     return (
         <StyledCard>
             <StyledAvatar src={item?.avatar_url} alt={item?.login} />
@@ -60,3 +60,5 @@ ProfileCard.propTypes = {
         login: PropTypes.string.isRequired,
     }).isRequired
 }
+
+export default ProfileCard;

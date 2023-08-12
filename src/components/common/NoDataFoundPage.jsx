@@ -10,7 +10,7 @@ const StyledEmptyContainer = styled.div`
     text-align: center;
 `;
 
-export default function NoDataFoundPage() {
+const NoDataFoundPage = () => {
     return (
         <StyledEmptyContainer>
             <p>No data found.</p>
@@ -18,3 +18,5 @@ export default function NoDataFoundPage() {
         </StyledEmptyContainer>
     );
 }
+
+export default NoDataFoundPage;

@@ -3,7 +3,7 @@
  * @param {string} text - The input text to be capitalized.
  * @returns {string} - The capitalized text.
  */
-export default function capitalizeText(text) {
+const capitalizeText = (text) => {
   const words = text.split(' ');
 
   const capitalizedWords = [];
@@ -18,3 +18,5 @@ export default function capitalizeText(text) {
 
   return capitalizedText;
 }
+
+export default capitalizeText;

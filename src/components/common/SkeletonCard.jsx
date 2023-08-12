@@ -21,6 +21,8 @@ const StyledSkeletonCard = styled.div`
   overflow: hidden; /* To ensure the shimmer effect respects the border-radius */
 `;
 
-export default function SkeletonCard() {
+const SkeletonCard = () => {
     return <StyledSkeletonCard />
 }
+
+export default SkeletonCard;

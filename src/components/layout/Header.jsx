@@ -29,7 +29,7 @@ const StyledHeaderTitle = styled.span`
     font-weight: bold;
 `
 
-export default function Header() {
+const Header = () => {
     return (
         <StyledMainHeaderContainer>
             <StyledHeaderWrapper>
@@ -42,3 +42,5 @@ export default function Header() {
         </StyledMainHeaderContainer>
     )
 }
+
+export default Header;
