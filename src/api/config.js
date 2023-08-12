@@ -11,21 +11,16 @@ const apiConfig = {
 };
 
 export const fetchApiData = async endpoint => {
-    try {
-        const response = await fetch(`${BASE_URL}${endpoint}&per_page=${PAGE_LIMIT}`, {
-            headers: {
-                ...apiConfig.headers,
-                Authorization: `Bearer ${import.meta.env.VITE_AUTH_KEY}`,
-            },
-        });
+    const response = await fetch(`${BASE_URL}${endpoint}&per_page=${PAGE_LIMIT}`, {
+        headers: {
+            ...apiConfig.headers,
+            Authorization: `Bearer ${import.meta.env.VITE_AUTH_KEY}`,
+        },
+    });
 
-        if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        throw error;
+    if (!response.ok) {
+        throw new Error(`Request failed with status: ${response.status}`);
     }
+
+    return response.json();
 };
