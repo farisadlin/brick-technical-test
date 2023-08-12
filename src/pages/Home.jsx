@@ -88,13 +88,38 @@ const Home = () => {
     const searchParams = new URLSearchParams(location.search);
 
     const [selectedOption, setSelectedOption] = useState(DROPDOWN_OPTIONS.USERS);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
+    const [isDataEmpty, setIsDataEmpty] = useState(false);
     const [inputSearchValue, setInputSearchValue] = useState('');
 
     const debounceInputValue = useDebounce(inputSearchValue, 300)
     const { data, loading, error } = useSelector(({ githubData }) => githubData);
 
-    const totalPages = Math.round((data?.total_count || PAGE_LIMIT) / PAGE_LIMIT);
+    const totalPages = Math.ceil((data?.total_count || PAGE_LIMIT) / PAGE_LIMIT);
+
+    const updateURLParameters = () => {
+        const searchParams = new URLSearchParams();
+
+        searchParams.set("q", inputSearchValue);
+        searchParams.set("type", selectedOption);
+
+        if (!data?.items?.length) {
+            setIsDataEmpty(true)
+        } else {
+            setIsDataEmpty(false)
+        }
+
+        if (isDataEmpty) {
+            searchParams.set("page", 1);
+        } else {
+            searchParams.set("page", currentPage);
+        }
+
+        navigate({
+            pathname: location.pathname,
+            search: searchParams.toString()
+        });
+    };
 
     useEffect(() => {
         if (!debounceInputValue) return;
@@ -106,7 +131,8 @@ const Home = () => {
                 const apiData = await fetchSearchGithubData(
                     selectedOption,
                     debounceInputValue,
-                    currentPage
+                    currentPage,
+                    dispatch
                 );
                 dispatch(fetchSearchGithubDataSuccess(apiData));
             } catch (error) {
@@ -115,7 +141,6 @@ const Home = () => {
         };
 
         fetchDataFromApi();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage, debounceInputValue, dispatch, selectedOption]);
 
     useEffect(() => {
@@ -136,46 +161,22 @@ const Home = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inputSearchValue, selectedOption, currentPage]);
 
-
-    if (error) {
-        return <ErrorPage message={error} />
+    if (error || error?.isError) {
+        return <ErrorPage error={error} />
     }
 
     const renderUserDetailComponent = () => {
-        if (!data || data.items?.length === 0) {
+        if (!data || data?.items?.length === 0) {
             return <NoDataFoundPage />;
         }
 
-        return data.items.map(item => {
+        return data?.items?.map(item => {
             if (selectedOption === DROPDOWN_OPTIONS.USERS) {
                 return <ProfileCard key={item.id} item={item} />;
             } else {
                 return <RepositoryCard key={item.id} item={item} />;
             }
         });
-    }
-
-
-    const updateURLParameters = () => {
-        const searchParams = new URLSearchParams();
-
-        searchParams.set("q", inputSearchValue);
-        searchParams.set("type", selectedOption);
-
-        if (data.items?.length > 0) {
-            searchParams.set("page", currentPage);
-        } else {
-            searchParams.set("page", 1);
-        }
-
-        navigate({
-            pathname: location.pathname,
-            search: searchParams.toString()
-        });
-    };
-
-    if (error) {
-        return <ErrorPage message={error} />
     }
 
     const handleSearchInputChange = (event) => {
@@ -191,7 +192,6 @@ const Home = () => {
     const handleOptionChange = (event) => {
         setSelectedOption(event.target.value);
     };
-
 
     return (
         <MainLayout>
@@ -216,7 +216,7 @@ const Home = () => {
             </StyledCardContainer>
 
             {/* Pagination */}
-            {data.items?.length > 0 ? <Pagination
+            {data?.items?.length > 0 ? <Pagination
                 totalPages={totalPages}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}

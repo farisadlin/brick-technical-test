@@ -2,7 +2,6 @@ import GithubIcon from '@/assets/github-icon.png'
 import { MEDIA_QUERIES_DEVICE } from '@/constants'
 import styled from "styled-components"
 
-// HEADER
 const StyledMainHeaderContainer = styled.header`
     width: 100%;
 `

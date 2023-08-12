@@ -5,7 +5,8 @@ import rootReducers from '@/redux/reducers'
 
 const persistConfig = {
   key: 'root',
-  storage
+  storage,
+  blacklist: ['githubData']
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducers)

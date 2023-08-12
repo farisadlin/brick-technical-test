@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const ErrorContainer = styled.div`
@@ -19,13 +19,22 @@ const ErrorMessage = styled.p`
   text-align: center;
 `;
 
-const ErrorPage = ({ code = '', message = '' }) => {
+const ErrorPage = ({error}) => {
   return (
     <ErrorContainer>
-      <ErrorCode>{code}</ErrorCode>
-      <ErrorMessage>{message}</ErrorMessage>
+      <ErrorCode>{error?.errorStatus}</ErrorCode>
+      <ErrorMessage>{error?.errorMessage?.message}</ErrorMessage>
     </ErrorContainer>
   );
+};
+
+ErrorPage.propTypes = {
+  error: PropTypes.shape({
+    errorMessage: PropTypes.shape({
+      message: PropTypes.string.isRequired
+    }),
+    errorStatus: PropTypes.number.isRequired
+  })
 };
 
 export default ErrorPage;
