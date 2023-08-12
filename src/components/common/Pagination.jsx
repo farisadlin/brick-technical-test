@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const PaginationContainer = styled.div`
@@ -15,20 +15,31 @@ const PageButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   background-color: ${(props) => (props.active ? '#ccc' : 'transparent')};
+
+  &:hover {
+    background-color: #eee;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 `;
 
 function Pagination({ totalPages, currentPage, onPageChange }) {
   const getPageButtons = () => {
     const buttons = [];
 
-    // Display up to 10 buttons or less if there are fewer pages
     const maxDisplayPages = Math.min(totalPages, 10);
 
-    // Determine the range of pages to display
     let startPage = Math.max(currentPage - Math.floor(maxDisplayPages / 2), 1);
     let endPage = startPage + maxDisplayPages - 1;
 
-    // Adjust the range if it exceeds total pages
     if (endPage > totalPages) {
       endPage = totalPages;
       startPage = Math.max(endPage - maxDisplayPages + 1, 1);
@@ -46,14 +57,18 @@ function Pagination({ totalPages, currentPage, onPageChange }) {
       );
     }
 
-    // Add "..." before the first page if necessary
     if (startPage > 1) {
-      buttons.unshift(<PageButton key="start-ellipsis">...</PageButton>);
+      buttons.unshift(
+        <PageButton key="start-1" onClick={() => onPageChange(1)}>1</PageButton>,
+        <PageButton key="start-ellipsis" disabled>...</PageButton>
+      );
     }
 
-    // Add "..." after the last page if necessary
     if (endPage < totalPages) {
-      buttons.push(<PageButton key="end-ellipsis">...</PageButton>);
+      buttons.push(
+        <PageButton key="end-ellipsis" disabled>...</PageButton>,
+        <PageButton key="end-last" onClick={() => onPageChange(totalPages)}>{totalPages}</PageButton>
+      );
     }
 
     return buttons;
@@ -61,21 +76,25 @@ function Pagination({ totalPages, currentPage, onPageChange }) {
 
   return (
     <PaginationContainer>
-      <PageButton
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        Previous
-      </PageButton>
+      {currentPage > 1 && (
+        <PageButton onClick={() => onPageChange(currentPage - 1)}>
+          Previous
+        </PageButton>
+      )}
       {getPageButtons()}
-      <PageButton
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        Next
-      </PageButton>
+      {currentPage < totalPages && (
+        <PageButton onClick={() => onPageChange(currentPage + 1)}>
+          Next
+        </PageButton>
+      )}
     </PaginationContainer>
   );
 }
+
+Pagination.propTypes = {
+    totalPages: PropTypes.number.isRequired,
+    currentPage: PropTypes.number.isRequired,
+    onPageChange: PropTypes.func.isRequired,
+  };
 
 export default Pagination;

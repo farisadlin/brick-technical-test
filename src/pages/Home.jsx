@@ -1,17 +1,18 @@
-/* eslint-disable no-unused-vars */
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import GithubIcon from '@/assets/github-icon.png'
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Pagination from "@/components/common/Pagination";
-import Loading from "@/components/common/Loading";
-import ErrorPage from "@/components/ErrorPage";
+import ErrorPage from "@/components/common/ErrorPage";
 import { fetchSearchGithubData } from "@/api/fetchSearchGithubData";
 import { fetchSearchGithubDataFailed, fetchSearchGithubDataLoading, fetchSearchGithubDataSuccess } from "@/redux/actions/githubDataAction";
 import { DROPDOWN_OPTIONS } from "@/constants";
 import capitalizeText from "@/utils/capitalizeText";
 import SkeletonCard from "@/components/common/SkeletonCard";
 import useDebounce from "@/hooks/useDebounce";
+import ProfileCard from "@/components/common/ProfileCard";
+import NoDataFoundPage from '@/components/common/NoDataFoundPage';
 
 // HEADER
 const StyledMainHeaderContainer = styled.header`
@@ -50,6 +51,7 @@ const StyledSearchInput = styled.input`
 `
 
 const StyledDropdownInput = styled.select`
+    cursor: pointer;
     margin-left: 10px;
     height: 39.5px;
     padding: 10px;
@@ -66,11 +68,14 @@ const StyledCardContainer = styled.div`
 `
 
 export default function Home() {
+    const navigate = useNavigate();
+    const location = useLocation();
     const dispatch = useDispatch();
     const [selectedOption, setSelectedOption] = useState(DROPDOWN_OPTIONS.USERS);
     const [currentPage, setCurrentPage] = useState(1);
     const [inputSearchValue, setInputSearchValue] = useState('');
     const debounceInputValue = useDebounce(inputSearchValue, 300)
+    const searchParams = new URLSearchParams(location.search);
     const { data, loading, error } = useSelector(({ githubData }) => githubData);
 
     const totalPages = data.total_count || 10;
@@ -82,7 +87,11 @@ export default function Home() {
 
         const fetchDataFromApi = async () => {
             try {
-                const apiData = await fetchSearchGithubData(selectedOption, debounceInputValue, currentPage);
+                const apiData = await fetchSearchGithubData(
+                    selectedOption,
+                    debounceInputValue,
+                    currentPage
+                );
                 dispatch(fetchSearchGithubDataSuccess(apiData));
             } catch (error) {
                 dispatch(fetchSearchGithubDataFailed(error));
@@ -90,16 +99,57 @@ export default function Home() {
         };
 
         fetchDataFromApi();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage, debounceInputValue, dispatch, selectedOption]);
+
+    useEffect(() => {
+        if (searchParams.get("query")) {
+            setInputSearchValue(searchParams.get("query"));
+        }
+        if (searchParams.get("type")) {
+            setSelectedOption(searchParams.get("type"));
+        }
+        if (searchParams.get("page")) {
+            setCurrentPage(Number(searchParams.get("page")));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data.items.length, location.search]);
+
+    useEffect(() => {
+        updateURLParameters();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [inputSearchValue, selectedOption, currentPage]);
+
 
     if (error) {
         return <ErrorPage message={error} />
     }
 
+    const updateURLParameters = () => {
+        const searchParams = new URLSearchParams();
+
+        if (inputSearchValue) {
+            searchParams.set("query", inputSearchValue);
+        }
+        searchParams.set("type", selectedOption);
+
+        if (data.items?.length > 0) {
+            searchParams.set("page", currentPage);
+        } else {
+            searchParams.set("page", 1);
+        }
+
+        navigate({
+            pathname: location.pathname,
+            search: searchParams.toString()
+        });
+    };
+
+
     const handleSearchInputChange = (event) => {
-        setInputSearchValue(event.target.value)
+        setInputSearchValue(event.target.value);
     }
+
 
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= totalPages) {
@@ -110,6 +160,7 @@ export default function Home() {
     const handleOptionChange = (event) => {
         setSelectedOption(event.target.value);
     };
+
 
     return (
         <div>
@@ -126,7 +177,7 @@ export default function Home() {
 
             {/* Filters */}
             <StyledFilterContainer>
-                <StyledSearchInput onChange={handleSearchInputChange} placeholder="Typing to search users or repositories .." />
+                <StyledSearchInput defaultValue={searchParams.get("query")} onChange={handleSearchInputChange} placeholder="Typing to search users or repositories .." />
                 {/* Dropdown */}
                 <StyledDropdownInput id="dropdown" value={selectedOption} onChange={handleOptionChange}>
                     {Object.values(DROPDOWN_OPTIONS).map((option, index) => (
@@ -137,21 +188,26 @@ export default function Home() {
 
             {/* Cards */}
             <StyledCardContainer>
-                {loading ? (
-                    Array.from({ length: 9 }, (_, index) => (
-                        <SkeletonCard key={index} />
-                    ))
-                ) :
-                    DivLoopComponent()
+                {loading ? DivLoopComponent() :
+                    (
+                        data && data.items?.length > 0
+                            ? data?.items?.map(item => (
+                                <ProfileCard key={item.id} item={item} />
+                            ))
+                            : <NoDataFoundPage />
+                    )
                 }
             </StyledCardContainer>
 
+
             {/* Pagination */}
-            <Pagination
+            {data.items?.length > 0 ? <Pagination
                 totalPages={totalPages}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
-            />
+            /> :
+                null
+            }
         </div>
     )
 }
@@ -162,11 +218,7 @@ function DivLoopComponent() {
     const divs = [];
 
     for (let i = 0; i < divCount; i++) {
-        divs.push(<div style={{
-            background: 'grey',
-            color: 'white',
-            height: '100px'
-        }} key={i}>Div {i + 1}</div>);
+        divs.push(<SkeletonCard key={i}>Div {i + 1}</SkeletonCard>);
     }
 
     return divs;
