@@ -1,6 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
-import GithubIcon from '@/assets/github-icon.png'
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Pagination from "@/components/common/Pagination";
@@ -14,42 +13,7 @@ import useDebounce from "@/hooks/useDebounce";
 import ProfileCard from "@/components/common/ProfileCard";
 import NoDataFoundPage from '@/components/common/NoDataFoundPage';
 import RepositoryCard from '@/components/common/RepositoryCard';
-
-const StyledMainContainer = styled.div`
-    width: 100%;
-    margin: 0 auto;
-
-    @media ${MEDIA_QUERIES_DEVICE.DESKTOP} {
-        max-width: 1800px;
-    }
-`;
-
-// HEADER
-const StyledMainHeaderContainer = styled.header`
-    width: 100%;
-`
-
-const StyledHeaderWrapper = styled.div`
-    display: flex;
-    @media ${MEDIA_QUERIES_DEVICE.MOBILE} {
-        justify-content: center;
-    }
-`
-
-const StyledHeaderIcon = styled.img`
-    width: 75px;
-    height: 75px;
-`
-
-const StyledHeaderInfoWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-`
-
-const StyledHeaderTitle = styled.span`
-    font-weight: bold;
-`
+import MainLayout from '@/components/layout/MainLayout';
 
 // FILTERS
 const StyledFilterContainer = styled.div`
@@ -92,7 +56,6 @@ const StyledDropdownWrapper = styled.div`
     }
 `;
 
-
 // CARD
 const StyledCardContainer = styled.div`
     display: grid;
@@ -105,6 +68,18 @@ const StyledCardContainer = styled.div`
         grid-template-columns: 1fr
     }
 `
+
+function renderSkeletonComponent() {
+    const loopCount = 9;
+
+    const divs = [];
+
+    for (let i = 0; i < loopCount; i++) {
+        divs.push(<SkeletonCard key={i}>Div {i + 1}</SkeletonCard>);
+    }
+
+    return divs;
+}
 
 export default function Home() {
     const navigate = useNavigate();
@@ -119,7 +94,7 @@ export default function Home() {
     const debounceInputValue = useDebounce(inputSearchValue, 300)
     const { data, loading, error } = useSelector(({ githubData }) => githubData);
 
-    const totalPages = Math.round((data.total_count || PAGE_LIMIT) / PAGE_LIMIT);
+    const totalPages = Math.round((data?.total_count || PAGE_LIMIT) / PAGE_LIMIT);
 
     useEffect(() => {
         if (!debounceInputValue) return;
@@ -166,6 +141,21 @@ export default function Home() {
         return <ErrorPage message={error} />
     }
 
+    const renderUserDetailComponent = () => {
+        if (!data || data.items?.length === 0) {
+            return <NoDataFoundPage />;
+        }
+
+        return data.items.map(item => {
+            if (selectedOption === DROPDOWN_OPTIONS.USERS) {
+                return <ProfileCard key={item.id} item={item} />;
+            } else {
+                return <RepositoryCard key={item.id} item={item} />;
+            }
+        });
+    }
+
+
     const updateURLParameters = () => {
         const searchParams = new URLSearchParams();
 
@@ -192,7 +182,6 @@ export default function Home() {
         setInputSearchValue(event.target.value);
     }
 
-
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= totalPages) {
             setCurrentPage(newPage);
@@ -205,18 +194,7 @@ export default function Home() {
 
 
     return (
-        <StyledMainContainer>
-            {/* Header */}
-            <StyledMainHeaderContainer>
-                <StyledHeaderWrapper>
-                    <StyledHeaderIcon src={GithubIcon} />
-                    <StyledHeaderInfoWrapper>
-                        <StyledHeaderTitle>Github Searcher</StyledHeaderTitle>
-                        <span>Search users or repositories below</span>
-                    </StyledHeaderInfoWrapper>
-                </StyledHeaderWrapper>
-            </StyledMainHeaderContainer>
-
+        <MainLayout>
             {/* Filters */}
             <StyledFilterContainer>
                 <StyledSearchInput defaultValue={searchParams.get("q")} onChange={handleSearchInputChange} placeholder="Typing to search users or repositories .." />
@@ -233,20 +211,9 @@ export default function Home() {
 
             {/* Cards */}
             <StyledCardContainer>
-                {loading ? DivLoopComponent() :
-                    (
-                        data && data.items?.length > 0
-                            ? data?.items?.map(item => selectedOption === DROPDOWN_OPTIONS.USERS ? (
-                                <ProfileCard key={item.id} item={item} />
-                            )
-                                :
-                                (
-                                    <RepositoryCard key={item.id} item={item} />
-                                )
-                            )
-                            : <NoDataFoundPage />
-                    )
-                }
+                {loading
+                    ? renderSkeletonComponent()
+                    : renderUserDetailComponent()}
             </StyledCardContainer>
 
             {/* Pagination */}
@@ -257,18 +224,6 @@ export default function Home() {
             /> :
                 null
             }
-        </StyledMainContainer>
+        </MainLayout>
     )
-}
-
-function DivLoopComponent() {
-    const divCount = 9; // Number of times to loop
-
-    const divs = [];
-
-    for (let i = 0; i < divCount; i++) {
-        divs.push(<SkeletonCard key={i}>Div {i + 1}</SkeletonCard>);
-    }
-
-    return divs;
 }
