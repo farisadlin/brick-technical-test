@@ -5,7 +5,7 @@ import styled from 'styled-components';
 const StyledCard = styled.div`
     border: 1px solid #e1e4e8;
     padding: 20px;
-    margin: 1em 0;
+    margin: 0;
     border-radius: 5px;
 `;
 
@@ -35,13 +35,10 @@ const StyledCardFooter = styled.div`
 const StyledDescription = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap; /* ensures text doesn't wrap to next line */
-  max-width: 90%; /* or whatever width you want */
 `;
 
 
 const RepositoryCard = ({ item }) => {
-    console.log({item})
     return (
         <StyledCard>
             <StyledCardHeader>

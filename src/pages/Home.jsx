@@ -84,7 +84,7 @@ export default function Home() {
     const totalPages = Math.round((data.total_count || PAGE_LIMIT) / PAGE_LIMIT);
 
     useEffect(() => {
-        if (!inputSearchValue) return;
+        if (!debounceInputValue) return;
 
         dispatch(fetchSearchGithubDataLoading());
 
@@ -106,8 +106,8 @@ export default function Home() {
     }, [currentPage, debounceInputValue, dispatch, selectedOption]);
 
     useEffect(() => {
-        if (searchParams.get("query")) {
-            setInputSearchValue(searchParams.get("query"));
+        if (searchParams.get("q")) {
+            setInputSearchValue(searchParams.get("q"));
         }
         if (searchParams.get("type")) {
             setSelectedOption(searchParams.get("type"));
@@ -131,9 +131,7 @@ export default function Home() {
     const updateURLParameters = () => {
         const searchParams = new URLSearchParams();
 
-        if (inputSearchValue) {
-            searchParams.set("query", inputSearchValue);
-        }
+        searchParams.set("q", inputSearchValue);
         searchParams.set("type", selectedOption);
 
         if (data.items?.length > 0) {
@@ -183,7 +181,7 @@ export default function Home() {
 
             {/* Filters */}
             <StyledFilterContainer>
-                <StyledSearchInput defaultValue={searchParams.get("query")} onChange={handleSearchInputChange} placeholder="Typing to search users or repositories .." />
+                <StyledSearchInput defaultValue={searchParams.get("q")} onChange={handleSearchInputChange} placeholder="Typing to search users or repositories .." />
                 {/* Dropdown */}
                 <StyledDropdownInput id="dropdown" value={selectedOption} onChange={handleOptionChange}>
                     {Object.values(DROPDOWN_OPTIONS).map((option, index) => (

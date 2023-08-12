@@ -55,7 +55,6 @@ export default function ProfileCard({ item }) {
 ProfileCard.propTypes = {
     item: PropTypes.shape({
         avatar_url: PropTypes.string.isRequired,
-        followers: PropTypes.string.isRequired,
         followers_url: PropTypes.string.isRequired,
         html_url: PropTypes.string.isRequired,
         login: PropTypes.string.isRequired,

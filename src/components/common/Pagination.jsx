@@ -40,8 +40,6 @@ function Pagination({ totalPages, currentPage, onPageChange }) {
     let startPage = Math.max(currentPage - Math.floor(maxDisplayPages / 2), 1);
     let endPage = startPage + maxDisplayPages - 1;
 
-    console.log({totalPages})
-
     if (endPage > totalPages) {
       endPage = totalPages;
       startPage = Math.max(endPage - maxDisplayPages + 1, 1);
