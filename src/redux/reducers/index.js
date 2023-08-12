@@ -1,8 +1,8 @@
-import { combineReducers } from "@reduxjs/toolkit";
-import cartReducer from "./cartReducer";
+import { combineReducers } from 'redux';
+import githubDataReducer from './githubDataReducer';
 
 const rootReducers = combineReducers({
-    cart: cartReducer
+    githubData: githubDataReducer
 })
 
 export default rootReducers
