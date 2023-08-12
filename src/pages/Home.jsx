@@ -73,10 +73,10 @@ export default function Home() {
     const debounceInputValue = useDebounce(inputSearchValue, 300)
     const { data, loading, error } = useSelector(({ githubData }) => githubData);
 
-    const totalPages = 10;
+    const totalPages = data.total_count || 10;
 
     useEffect(() => {
-        if (!inputSearchValue) return
+        if (!debounceInputValue) return
 
         dispatch(fetchSearchGithubDataLoading());
 
