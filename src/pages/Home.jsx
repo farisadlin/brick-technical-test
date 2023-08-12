@@ -7,12 +7,13 @@ import Pagination from "@/components/common/Pagination";
 import ErrorPage from "@/components/common/ErrorPage";
 import { fetchSearchGithubData } from "@/api/fetchSearchGithubData";
 import { fetchSearchGithubDataFailed, fetchSearchGithubDataLoading, fetchSearchGithubDataSuccess } from "@/redux/actions/githubDataAction";
-import { DROPDOWN_OPTIONS } from "@/constants";
+import { DROPDOWN_OPTIONS, PAGE_LIMIT } from "@/constants";
 import capitalizeText from "@/utils/capitalizeText";
 import SkeletonCard from "@/components/common/SkeletonCard";
 import useDebounce from "@/hooks/useDebounce";
 import ProfileCard from "@/components/common/ProfileCard";
 import NoDataFoundPage from '@/components/common/NoDataFoundPage';
+import RepositoryCard from '@/components/common/RepositoryCard';
 
 // HEADER
 const StyledMainHeaderContainer = styled.header`
@@ -71,17 +72,19 @@ export default function Home() {
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useDispatch();
+    const searchParams = new URLSearchParams(location.search);
+
     const [selectedOption, setSelectedOption] = useState(DROPDOWN_OPTIONS.USERS);
     const [currentPage, setCurrentPage] = useState(1);
     const [inputSearchValue, setInputSearchValue] = useState('');
+
     const debounceInputValue = useDebounce(inputSearchValue, 300)
-    const searchParams = new URLSearchParams(location.search);
     const { data, loading, error } = useSelector(({ githubData }) => githubData);
 
-    const totalPages = data.total_count || 10;
+    const totalPages = Math.round((data.total_count || PAGE_LIMIT) / PAGE_LIMIT);
 
     useEffect(() => {
-        if (!debounceInputValue) return
+        if (!inputSearchValue) return;
 
         dispatch(fetchSearchGithubDataLoading());
 
@@ -112,8 +115,8 @@ export default function Home() {
         if (searchParams.get("page")) {
             setCurrentPage(Number(searchParams.get("page")));
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data.items.length, location.search]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [location.search]);
 
     useEffect(() => {
         updateURLParameters();
@@ -145,6 +148,9 @@ export default function Home() {
         });
     };
 
+    if (error) {
+        return <ErrorPage message={error} />
+    }
 
     const handleSearchInputChange = (event) => {
         setInputSearchValue(event.target.value);
@@ -191,14 +197,18 @@ export default function Home() {
                 {loading ? DivLoopComponent() :
                     (
                         data && data.items?.length > 0
-                            ? data?.items?.map(item => (
+                            ? data?.items?.map(item => selectedOption === DROPDOWN_OPTIONS.USERS ? (
                                 <ProfileCard key={item.id} item={item} />
-                            ))
+                            )
+                                :
+                                (
+                                    <RepositoryCard key={item.id} item={item} />
+                                )
+                            )
                             : <NoDataFoundPage />
                     )
                 }
             </StyledCardContainer>
-
 
             {/* Pagination */}
             {data.items?.length > 0 ? <Pagination

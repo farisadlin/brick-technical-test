@@ -1,6 +1,7 @@
+import { PAGE_LIMIT } from "@/constants";
+
 /* eslint-disable no-useless-catch */
 const BASE_URL = import.meta.env.VITE_BASE_URL
-const PAGE_LIMIT = 9
 
 const apiConfig = {
     headers: {

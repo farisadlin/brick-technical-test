@@ -43,10 +43,10 @@ const StyledStats = styled.div`
 export default function ProfileCard({ item }) {
     return (
         <StyledCard>
-            <StyledAvatar src={item.avatar_url} alt={item.login} />
+            <StyledAvatar src={item?.avatar_url} alt={item?.login} />
             <StyledInfo>
-                <StyledName><StyledLink href={item.html_url} target="_blank">{item.login}</StyledLink></StyledName>
-                <StyledStats>Github URL: {item.html_url}</StyledStats>
+                <StyledName><StyledLink href={item?.html_url} target="_blank">{item?.login}</StyledLink></StyledName>
+                <StyledStats>Github URL: {item?.html_url}</StyledStats>
             </StyledInfo>
         </StyledCard>
     );

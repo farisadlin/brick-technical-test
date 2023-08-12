@@ -19,7 +19,7 @@ const ErrorMessage = styled.p`
   text-align: center;
 `;
 
-const ErrorPage = ({ code = 404, message = '' }) => {
+const ErrorPage = ({ code = '', message = '' }) => {
   return (
     <ErrorContainer>
       <ErrorCode>{code}</ErrorCode>
