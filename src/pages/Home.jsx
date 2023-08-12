@@ -7,13 +7,22 @@ import Pagination from "@/components/common/Pagination";
 import ErrorPage from "@/components/common/ErrorPage";
 import { fetchSearchGithubData } from "@/api/fetchSearchGithubData";
 import { fetchSearchGithubDataFailed, fetchSearchGithubDataLoading, fetchSearchGithubDataSuccess } from "@/redux/actions/githubDataAction";
-import { DROPDOWN_OPTIONS, PAGE_LIMIT } from "@/constants";
+import { DROPDOWN_OPTIONS, MEDIA_QUERIES_DEVICE, PAGE_LIMIT } from "@/constants";
 import capitalizeText from "@/utils/capitalizeText";
 import SkeletonCard from "@/components/common/SkeletonCard";
 import useDebounce from "@/hooks/useDebounce";
 import ProfileCard from "@/components/common/ProfileCard";
 import NoDataFoundPage from '@/components/common/NoDataFoundPage';
 import RepositoryCard from '@/components/common/RepositoryCard';
+
+const StyledMainContainer = styled.div`
+    width: 100%;
+    margin: 0 auto;
+
+    @media ${MEDIA_QUERIES_DEVICE.DESKTOP} {
+        max-width: 1800px;
+    }
+`;
 
 // HEADER
 const StyledMainHeaderContainer = styled.header`
@@ -22,6 +31,9 @@ const StyledMainHeaderContainer = styled.header`
 
 const StyledHeaderWrapper = styled.div`
     display: flex;
+    @media ${MEDIA_QUERIES_DEVICE.MOBILE} {
+        justify-content: center;
+    }
 `
 
 const StyledHeaderIcon = styled.img`
@@ -53,11 +65,33 @@ const StyledSearchInput = styled.input`
 
 const StyledDropdownInput = styled.select`
     cursor: pointer;
-    margin-left: 10px;
     height: 39.5px;
+    margin-left: 10px;
     padding: 10px;
     width: 120px;
-`
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: #ffffff;
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    border-radius: 3px;
+`;
+
+const StyledDropdownWrapper = styled.div`
+    position: relative;
+    display: inline-block;
+
+    &::after {
+        content: "▼";
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 10px;
+        pointer-events: none;
+    }
+`;
+
 
 // CARD
 const StyledCardContainer = styled.div`
@@ -66,6 +100,10 @@ const StyledCardContainer = styled.div`
     grid-template-columns: repeat(3, 1fr);
     gap: 15px;
     background-color: rgba(255, 255, 255, 0.8); /* Add a semi-transparent background */
+
+    @media ${MEDIA_QUERIES_DEVICE.TABLET} {
+        grid-template-columns: 1fr
+    }
 `
 
 export default function Home() {
@@ -167,7 +205,7 @@ export default function Home() {
 
 
     return (
-        <div>
+        <StyledMainContainer>
             {/* Header */}
             <StyledMainHeaderContainer>
                 <StyledHeaderWrapper>
@@ -183,11 +221,14 @@ export default function Home() {
             <StyledFilterContainer>
                 <StyledSearchInput defaultValue={searchParams.get("q")} onChange={handleSearchInputChange} placeholder="Typing to search users or repositories .." />
                 {/* Dropdown */}
-                <StyledDropdownInput id="dropdown" value={selectedOption} onChange={handleOptionChange}>
-                    {Object.values(DROPDOWN_OPTIONS).map((option, index) => (
-                        <option key={index} value={option}>{capitalizeText(option)}</option>
-                    ))}
-                </StyledDropdownInput>
+                <StyledDropdownWrapper>
+                    <StyledDropdownInput id="dropdown" value={selectedOption} onChange={handleOptionChange}>
+                        {Object.values(DROPDOWN_OPTIONS).map((option, index) => (
+                            <option key={index} value={option}>{capitalizeText(option)}</option>
+                        ))}
+                    </StyledDropdownInput>
+                </StyledDropdownWrapper>
+
             </StyledFilterContainer>
 
             {/* Cards */}
@@ -216,7 +257,7 @@ export default function Home() {
             /> :
                 null
             }
-        </div>
+        </StyledMainContainer>
     )
 }
 
