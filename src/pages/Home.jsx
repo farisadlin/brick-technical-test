@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Pagination from "@/components/common/Pagination";
 import ErrorPage from "@/components/common/ErrorPage";
 import { fetchSearchGithubData } from "@/api/fetchSearchGithubData";
-import { fetchSearchGithubDataFailed, fetchSearchGithubDataLoading, fetchSearchGithubDataSuccess } from "@/redux/actions/githubDataAction";
+import { fetchSearchGithubDataFailed, fetchSearchGithubDataLoading, fetchSearchGithubDataSuccess, sendInputQueryParams } from "@/redux/actions/githubDataAction";
 import { DROPDOWN_OPTIONS, MEDIA_QUERIES_DEVICE, PAGE_LIMIT } from "@/constants";
 import capitalizeText from "@/utils/capitalizeText";
 import SkeletonCard from "@/components/common/SkeletonCard";
@@ -14,6 +14,7 @@ import NoDataFoundPage from '@/components/common/NoDataFoundPage';
 import MainLayout from '@/components/layout/MainLayout';
 import ProfileCard from './components/ProfileCard';
 import RepositoryCard from './components/RepositoryCard';
+import hasQueryExisted from '@/utils/hasQueryExisted';
 
 // FILTERS
 const StyledFilterContainer = styled.div`
@@ -92,8 +93,8 @@ const Home = () => {
     const [isDataEmpty, setIsDataEmpty] = useState(false);
     const [inputSearchValue, setInputSearchValue] = useState('');
 
-    const debounceInputValue = useDebounce(inputSearchValue, 300)
-    const { data, loading, error } = useSelector(({ githubData }) => githubData);
+    const debounceInputValue = useDebounce(inputSearchValue, 300);
+    const { data, loading, error, cachesData } = useSelector(({ githubData }) => githubData);
 
     const totalPages = Math.ceil((data?.total_count || PAGE_LIMIT) / PAGE_LIMIT);
 
@@ -124,6 +125,15 @@ const Home = () => {
     useEffect(() => {
         if (!debounceInputValue) return;
 
+        if (hasQueryExisted(cachesData, inputSearchValue, selectedOption, currentPage)) {
+            dispatch(sendInputQueryParams({
+                inputQuery: inputSearchValue,
+                inputSelect: selectedOption,
+                inputPage: currentPage
+            }))
+            return
+        }
+
         dispatch(fetchSearchGithubDataLoading());
 
         const fetchDataFromApi = async () => {
@@ -134,13 +144,19 @@ const Home = () => {
                     currentPage,
                     dispatch
                 );
-                dispatch(fetchSearchGithubDataSuccess(apiData));
+                dispatch(fetchSearchGithubDataSuccess({
+                    ...apiData,
+                    inputQuery: inputSearchValue,
+                    inputSelect: selectedOption,
+                    inputPage: currentPage
+                }));
             } catch (error) {
                 dispatch(fetchSearchGithubDataFailed(error));
             }
         };
 
         fetchDataFromApi();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage, debounceInputValue, dispatch, selectedOption]);
 
     useEffect(() => {

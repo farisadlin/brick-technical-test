@@ -33,7 +33,7 @@ ErrorPage.propTypes = {
     errorMessage: PropTypes.shape({
       message: PropTypes.string.isRequired
     }),
-    errorStatus: PropTypes.number.isRequired
+    errorStatus: PropTypes.number
   })
 };
 
