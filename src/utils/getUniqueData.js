@@ -7,7 +7,7 @@
 const uniqueData = (data) => {
     const uniqueValues = new Set();
     
-    return data.filter(item => {
+    return data?.filter(item => {
         const combinedValue = `${item.inputQuery}-${item.inputSelect}-${item.inputPage}`;
         
         if (!uniqueValues.has(combinedValue)) {

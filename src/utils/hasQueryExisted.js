@@ -1,9 +1,12 @@
 /**
- * Checks if a given query exists within an array of objects based on the 'inputQuery' property.
+ * Checks if a given set of input parameters ('inputQuery', 'inputSelect', and 'inputPage') exists 
+ * within an array of objects.
  * 
- * @param {Array} arr - The array of objects to search within.
- * @param {string} query - The query string to search for.
- * @returns {boolean} True if a matching 'inputQuery' is found; otherwise, false.
+ * @param {Array} data - The array of objects to search within.
+ * @param {string} inputQuery - The 'inputQuery' string to match against.
+ * @param {string} inputSelect - The 'inputSelect' string to match against.
+ * @param {number|string} inputPage - The 'inputPage' value to match against.
+ * @returns {boolean} True if an object in the data array matches all the given input parameters; otherwise, false.
  */
 const hasQueryExisted = (data, inputQuery, inputSelect, inputPage) => {
     return data.some(item => {
